@@ -1,0 +1,103 @@
+---
+// Confetti - Lightweight confetti burst animation
+// Triggered via custom event: window.dispatchEvent(new Event('confetti'))
+---
+
+<canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9999;"></canvas>
+
+<script>
+  function initConfetti() {
+    const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d')!;
+    const COLORS = ['#052FAD', '#6B73FF', '#00D4AA', '#FF6B35', '#00C853', '#FFD700'];
+    const PARTICLE_COUNT = 60;
+    const GRAVITY = 0.3;
+    const DRAG = 0.98;
+
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      color: string;
+      size: number;
+      rotation: number;
+      rotationSpeed: number;
+      life: number;
+    }
+
+    let particles: Particle[] = [];
+    let animationId: number | null = null;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function createParticles() {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight * 0.3;
+
+      particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+        x: centerX,
+        y: centerY,
+        vx: (Math.random() - 0.5) * 16,
+        vy: Math.random() * -12 - 4,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        size: Math.random() * 6 + 3,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.2,
+        life: 1,
+      }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles = particles.filter((p) => p.life > 0);
+
+      if (particles.length === 0) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = null;
+        return;
+      }
+
+      particles.forEach((p) => {
+        p.vy += GRAVITY;
+        p.vx *= DRAG;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.rotationSpeed;
+        p.life -= 0.008;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        ctx.restore();
+      });
+
+      animationId = requestAnimationFrame(draw);
+    }
+
+    function fire() {
+      resize();
+      createParticles();
+      if (!animationId) {
+        animationId = requestAnimationFrame(draw);
+      }
+    }
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('confetti', fire);
+    resize();
+  }
+
+  initConfetti();
+  document.addEventListener('astro:page-load', initConfetti);
+</script>

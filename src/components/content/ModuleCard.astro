@@ -1,0 +1,26 @@
+---
+interface Props {
+  order: number;
+  title: string;
+  description: string;
+  duration: string;
+  icon: string;
+  xpReward: number;
+  slug: string;
+}
+
+const { order, title, description, duration, icon, xpReward, slug } = Astro.props;
+---
+
+<a href={`/modules/${slug}/`} class="module-card">
+  <div class="module-card-icon">{icon}</div>
+  <div class="module-card-body">
+    <h3 class="module-card-title">{title}</h3>
+    <p class="module-card-description">{description}</p>
+    <div class="module-card-meta">
+      <span>Module {order}</span>
+      <span>{duration}</span>
+      <span>{xpReward} XP</span>
+    </div>
+  </div>
+</a>

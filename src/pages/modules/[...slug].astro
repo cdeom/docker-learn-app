@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content';
+import ModuleLayout from '../../layouts/ModuleLayout.astro';
+
+export async function getStaticPaths() {
+  const modules = await getCollection('modules');
+  return modules.map((mod) => ({
+    params: { slug: mod.slug },
+    props: { module: mod },
+  }));
+}
+
+const { module } = Astro.props;
+const allModules = await getCollection('modules');
+const { Content, headings } = await module.render();
+---
+
+<ModuleLayout module={module} headings={headings} allModules={allModules}>
+  <Content />
+</ModuleLayout>

@@ -1,0 +1,151 @@
+---
+// BadgeNotification - Shows a popup when new badges are earned
+// Included in BaseLayout, checks on every page load
+---
+
+<div class="badge-notification" id="badge-notification" style="display: none;">
+  <div class="badge-notification-inner">
+    <div class="badge-notification-icon" id="badge-icon"></div>
+    <div class="badge-notification-content">
+      <span class="badge-notification-label">Badge debloque !</span>
+      <span class="badge-notification-name" id="badge-name"></span>
+      <span class="badge-notification-desc" id="badge-desc"></span>
+    </div>
+    <button class="badge-notification-close" id="badge-close" type="button" aria-label="Fermer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  import { getNewBadges, markBadgesSeen } from '../../data/progress-manager';
+
+  function checkBadges() {
+    const newBadges = getNewBadges();
+    if (newBadges.length === 0) return;
+
+    const notification = document.getElementById('badge-notification') as HTMLElement;
+    const iconEl = document.getElementById('badge-icon') as HTMLElement;
+    const nameEl = document.getElementById('badge-name') as HTMLElement;
+    const descEl = document.getElementById('badge-desc') as HTMLElement;
+    const closeBtn = document.getElementById('badge-close');
+
+    let badgeIndex = 0;
+
+    function showBadge(index: number) {
+      const badge = newBadges[index];
+      if (!badge) {
+        notification.style.display = 'none';
+        markBadgesSeen();
+        return;
+      }
+
+      iconEl.textContent = badge.icon;
+      nameEl.textContent = badge.name;
+      descEl.textContent = badge.description;
+      notification.style.display = 'block';
+
+      requestAnimationFrame(() => notification.classList.add('visible'));
+
+      setTimeout(() => {
+        notification.classList.remove('visible');
+        setTimeout(() => showBadge(index + 1), 300);
+      }, 3000);
+    }
+
+    closeBtn?.addEventListener('click', () => {
+      notification.classList.remove('visible');
+      setTimeout(() => {
+        notification.style.display = 'none';
+        markBadgesSeen();
+      }, 300);
+    });
+
+    // Delay first badge to avoid flash
+    setTimeout(() => showBadge(badgeIndex), 500);
+  }
+
+  window.addEventListener('progress-updated', () => setTimeout(checkBadges, 200));
+  document.addEventListener('astro:page-load', () => setTimeout(checkBadges, 800));
+  setTimeout(checkBadges, 800);
+</script>
+
+<style>
+  .badge-notification {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1100;
+    pointer-events: none;
+  }
+
+  .badge-notification.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .badge-notification-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    min-width: 280px;
+  }
+
+  .badge-notification-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .badge-notification-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .badge-notification-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent);
+  }
+
+  .badge-notification-name {
+    font-weight: 700;
+    font-size: var(--font-size-base);
+  }
+
+  .badge-notification-desc {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+  }
+
+  .badge-notification-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .badge-notification-close:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+</style>

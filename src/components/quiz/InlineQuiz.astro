@@ -1,0 +1,318 @@
+---
+// InlineQuiz - Small quiz embedded at the end of a module
+// Shows all questions at once with collapsible answers
+import type { InlineQuestion } from '../../data/inline-quiz-questions';
+
+interface Props {
+  questions: InlineQuestion[];
+  moduleSlug: string;
+  title?: string;
+}
+
+const { questions, moduleSlug, title = 'Mini-QCM' } = Astro.props;
+---
+
+<div class="inline-quiz" data-module={moduleSlug}>
+  <div class="inline-quiz-header">
+    <h2 class="inline-quiz-title">{title}</h2>
+    <p class="inline-quiz-intro">Teste tes connaissances avant de passer au module suivant !</p>
+    <div class="inline-quiz-score" id={`score-${moduleSlug}`} style="display: none;">
+      <span class="score-badge" id={`score-badge-${moduleSlug}`}></span>
+    </div>
+  </div>
+
+  <div class="inline-quiz-questions">
+    {questions.map((q, index) => (
+      <div class="iq-question" data-index={index} data-correct={q.correctIndex}>
+        <div class="iq-question-header">
+          <span class="iq-number">{index + 1}</span>
+          <h3 class="iq-text">{q.question}</h3>
+        </div>
+        <div class="iq-options">
+          {q.options.map((option, optIndex) => (
+            <button class="iq-option" data-option={optIndex} type="button">
+              <span class="iq-letter">{String.fromCharCode(65 + optIndex)}</span>
+              <span class="iq-option-text">{option}</span>
+              <span class="iq-icon"></span>
+            </button>
+          ))}
+        </div>
+        <div class="iq-feedback" style="display: none;">
+          <p>{q.explanation}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="inline-quiz-footer" id={`footer-${moduleSlug}`} style="display: none;">
+    <button class="iq-btn-reset" data-module={moduleSlug} type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Recommencer
+    </button>
+  </div>
+</div>
+
+<script>
+  function initInlineQuizzes() {
+    const quizzes = document.querySelectorAll('.inline-quiz');
+
+    quizzes.forEach((quiz) => {
+      const moduleSlug = (quiz as HTMLElement).dataset.module!;
+      const questions = quiz.querySelectorAll('.iq-question');
+      const totalQuestions = questions.length;
+      let answeredCount = 0;
+      let correctCount = 0;
+
+      questions.forEach((questionEl) => {
+        const correctIndex = Number((questionEl as HTMLElement).dataset.correct);
+        const options = questionEl.querySelectorAll('.iq-option');
+        const feedback = questionEl.querySelector('.iq-feedback') as HTMLElement;
+        let answered = false;
+
+        options.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            if (answered) return;
+            answered = true;
+            answeredCount++;
+
+            const selected = Number((btn as HTMLElement).dataset.option);
+            const isCorrect = selected === correctIndex;
+            if (isCorrect) correctCount++;
+
+            options.forEach((opt) => {
+              (opt as HTMLElement).classList.add('disabled');
+              const idx = Number((opt as HTMLElement).dataset.option);
+              if (idx === correctIndex) {
+                (opt as HTMLElement).classList.add('correct');
+                const icon = opt.querySelector('.iq-icon') as HTMLElement;
+                if (icon) icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+              }
+              if (idx === selected && !isCorrect) {
+                (opt as HTMLElement).classList.add('incorrect');
+                const icon = opt.querySelector('.iq-icon') as HTMLElement;
+                if (icon) icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+              }
+            });
+
+            feedback.style.display = 'block';
+            feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+            // Check if all answered
+            if (answeredCount === totalQuestions) {
+              showScore(quiz, moduleSlug, correctCount, totalQuestions);
+            }
+          });
+        });
+      });
+
+      // Reset button
+      const resetBtn = quiz.querySelector('.iq-btn-reset');
+      resetBtn?.addEventListener('click', () => {
+        answeredCount = 0;
+        correctCount = 0;
+
+        questions.forEach((q) => {
+          const options = q.querySelectorAll('.iq-option');
+          options.forEach((opt) => {
+            opt.classList.remove('disabled', 'correct', 'incorrect');
+            const icon = opt.querySelector('.iq-icon') as HTMLElement;
+            if (icon) icon.innerHTML = '';
+          });
+          const feedback = q.querySelector('.iq-feedback') as HTMLElement;
+          feedback.style.display = 'none';
+          feedback.classList.remove('correct', 'incorrect');
+          // Reset answered flag via re-init
+        });
+
+        const scoreEl = document.getElementById(`score-${moduleSlug}`);
+        const footerEl = document.getElementById(`footer-${moduleSlug}`);
+        if (scoreEl) scoreEl.style.display = 'none';
+        if (footerEl) footerEl.style.display = 'none';
+
+        // Re-init to reset answered flags
+        initInlineQuizzes();
+      });
+    });
+  }
+
+  function showScore(quiz: Element, moduleSlug: string, correct: number, total: number) {
+    const pct = Math.round((correct / total) * 100);
+    const scoreEl = document.getElementById(`score-${moduleSlug}`);
+    const badgeEl = document.getElementById(`score-badge-${moduleSlug}`);
+    const footerEl = document.getElementById(`footer-${moduleSlug}`);
+
+    if (scoreEl && badgeEl) {
+      scoreEl.style.display = 'block';
+      badgeEl.textContent = `${correct}/${total} (${pct}%)`;
+      badgeEl.className = `score-badge ${pct >= 70 ? 'good' : pct >= 40 ? 'medium' : 'low'}`;
+    }
+    if (footerEl) footerEl.style.display = 'flex';
+  }
+
+  document.addEventListener('astro:page-load', initInlineQuizzes);
+  initInlineQuizzes();
+</script>
+
+<style>
+  .inline-quiz {
+    margin-top: var(--space-2xl);
+    padding: var(--space-xl);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .inline-quiz-header {
+    margin-bottom: var(--space-xl);
+  }
+
+  .inline-quiz-title {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+  }
+
+  .inline-quiz-intro {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .inline-quiz-score {
+    margin-top: var(--space-md);
+  }
+
+  .score-badge {
+    display: inline-block;
+    padding: 0.3em 0.8em;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: var(--font-size-sm);
+  }
+
+  .score-badge.good { background: rgba(0,200,83,0.15); color: var(--color-success); }
+  .score-badge.medium { background: rgba(255,107,53,0.15); color: var(--color-warning); }
+  .score-badge.low { background: rgba(255,23,68,0.15); color: var(--color-error); }
+
+  .inline-quiz-questions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .iq-question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+  }
+
+  .iq-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary-bg);
+    color: var(--color-primary-light);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .iq-text {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .iq-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 32px;
+  }
+
+  .iq-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .iq-option:hover:not(.disabled) {
+    border-color: var(--color-primary-light);
+    background: var(--color-primary-bg);
+  }
+
+  .iq-letter {
+    font-weight: 700;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  .iq-option-text { flex: 1; }
+  .iq-icon { flex-shrink: 0; width: 14px; height: 14px; }
+
+  .iq-option.disabled { cursor: default; opacity: 0.5; }
+  .iq-option.correct { border-color: var(--color-success); background: rgba(0,200,83,0.08); opacity: 1; }
+  .iq-option.correct .iq-letter { color: var(--color-success); }
+  .iq-option.correct .iq-icon { color: var(--color-success); }
+  .iq-option.incorrect { border-color: var(--color-error); background: rgba(255,23,68,0.08); opacity: 1; }
+  .iq-option.incorrect .iq-letter { color: var(--color-error); }
+  .iq-option.incorrect .iq-icon { color: var(--color-error); }
+
+  .iq-feedback {
+    margin-top: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    padding-left: 32px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+    animation: fadeIn 0.2s ease;
+  }
+
+  .iq-feedback.correct { background: rgba(0,200,83,0.06); }
+  .iq-feedback.incorrect { background: rgba(255,23,68,0.06); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .inline-quiz-footer {
+    margin-top: var(--space-lg);
+    display: flex;
+    justify-content: center;
+  }
+
+  .iq-btn-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .iq-btn-reset:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+</style>

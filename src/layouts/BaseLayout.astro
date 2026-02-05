@@ -1,0 +1,60 @@
+---
+import BadgeNotification from '../components/gamification/BadgeNotification.astro';
+import Confetti from '../components/gamification/Confetti.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Cours interactif Docker, Git, Docker Compose pour debutants' } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="theme-color" content="#052FAD" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <title>{title} | Docker Learn</title>
+  <script is:inline>
+    // Prevent flash: apply theme before render
+    const theme = localStorage.getItem('docker-learn-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  </script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+  <slot />
+  <BadgeNotification />
+  <Confetti />
+</body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+  @import '../styles/typography.css';
+  @import '../styles/components.css';
+
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    z-index: 999;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    top: var(--space-md);
+  }
+</style>

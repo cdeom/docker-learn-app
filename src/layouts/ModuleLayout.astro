@@ -1,0 +1,227 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import Sidebar from '../components/layout/Sidebar.astro';
+import TableOfContents from '../components/content/TableOfContents.astro';
+import CopyButton from '../components/content/CopyButton.astro';
+import QuizContainer from '../components/quiz/QuizContainer.astro';
+import InlineQuiz from '../components/quiz/InlineQuiz.astro';
+import { GIT_QUESTIONS, COMPOSE_QUESTIONS } from '../data/inline-quiz-questions';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  module: CollectionEntry<'modules'>;
+  headings: Array<{ depth: number; slug: string; text: string }>;
+  allModules: CollectionEntry<'modules'>[];
+}
+
+const { module, headings, allModules } = Astro.props;
+const sortedModules = allModules.sort((a, b) => a.data.order - b.data.order);
+const currentIndex = sortedModules.findIndex(m => m.slug === module.slug);
+const prevModule = currentIndex > 0 ? sortedModules[currentIndex - 1] : null;
+const nextModule = currentIndex < sortedModules.length - 1 ? sortedModules[currentIndex + 1] : null;
+const isQuizModule = module.data.order === 6;
+const isGitModule = module.data.order === 2;
+const isComposeModule = module.data.order === 5;
+---
+
+<BaseLayout title={module.data.title}>
+  <div class="app-layout">
+    <Header currentModule={module.data.title} />
+
+    <Sidebar modules={sortedModules} currentSlug={module.slug} />
+
+    <main class="app-main" id="main-content">
+      <div class="app-main-inner">
+        <article class="content">
+          <div class="module-header">
+            <span class="badge badge--primary">Module {module.data.order}</span>
+            <span class="module-duration">{module.data.icon} {module.data.duration}</span>
+          </div>
+          <h1>{module.data.title}</h1>
+          <p class="module-description">{module.data.description}</p>
+
+          {isQuizModule ? (
+            <QuizContainer />
+          ) : (
+            <slot />
+          )}
+
+          {isGitModule && (
+            <InlineQuiz questions={GIT_QUESTIONS} moduleSlug="git-quiz" title="Mini-QCM Git" />
+          )}
+          {isComposeModule && (
+            <InlineQuiz questions={COMPOSE_QUESTIONS} moduleSlug="compose-quiz" title="Mini-QCM Docker Compose" />
+          )}
+
+          {!isQuizModule && (
+            <div class="module-complete-section" id="module-complete-section">
+              <button
+                class="btn-complete-module"
+                id="btn-complete-module"
+                data-slug={module.slug}
+                data-xp={module.data.xpReward}
+                type="button"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Marquer comme termine
+              </button>
+            </div>
+          )}
+
+          <nav class="module-nav">
+            {prevModule ? (
+              <a href={`/modules/${prevModule.slug}/`} class="module-nav-link">
+                <span class="module-nav-label">&larr; Precedent</span>
+                <span class="module-nav-title">{prevModule.data.title}</span>
+              </a>
+            ) : <div />}
+            {nextModule ? (
+              <a href={`/modules/${nextModule.slug}/`} class="module-nav-link module-nav-link--next">
+                <span class="module-nav-label">Suivant &rarr;</span>
+                <span class="module-nav-title">{nextModule.data.title}</span>
+              </a>
+            ) : <div />}
+          </nav>
+        </article>
+
+        <aside class="toc-container">
+          <TableOfContents headings={headings} />
+        </aside>
+      </div>
+
+      <CopyButton />
+    </main>
+  </div>
+</BaseLayout>
+
+<script>
+  import { completeModule, isModuleCompleted } from '../data/progress-manager';
+
+  function initCompleteButton() {
+    const button = document.getElementById('btn-complete-module') as HTMLButtonElement;
+    if (!button) return;
+
+    const slug = button.dataset.slug!;
+
+    if (isModuleCompleted(slug)) {
+      markAsCompleted(button);
+      return;
+    }
+
+    button.addEventListener('click', () => {
+      const xpGained = completeModule(slug);
+      markAsCompleted(button);
+
+      if (xpGained > 0) {
+        showXpToast(xpGained);
+        window.dispatchEvent(new Event('confetti'));
+      }
+
+      window.dispatchEvent(new Event('progress-updated'));
+    });
+  }
+
+  function markAsCompleted(button: HTMLButtonElement) {
+    button.classList.add('completed');
+    button.disabled = true;
+    button.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Module termine !';
+  }
+
+  function showXpToast(xp: number) {
+    const toast = document.createElement('div');
+    toast.className = 'xp-toast';
+    toast.textContent = `+${xp} XP`;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('visible'));
+
+    setTimeout(() => {
+      toast.classList.remove('visible');
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
+  }
+
+  document.addEventListener('astro:page-load', initCompleteButton);
+  initCompleteButton();
+</script>
+
+<style is:global>
+  .xp-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-primary), #6B73FF);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 24px rgba(5, 47, 173, 0.4);
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .xp-toast.visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+</style>
+
+<style>
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .module-duration {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .module-description {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-2xl);
+    max-width: 60ch;
+  }
+
+  .module-complete-section {
+    margin-top: var(--space-2xl);
+    padding: var(--space-xl);
+    text-align: center;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .btn-complete-module {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-2xl);
+    background: var(--color-success);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-complete-module:hover:not(.completed) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.4);
+  }
+
+  .btn-complete-module.completed {
+    background: var(--color-border);
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+</style>

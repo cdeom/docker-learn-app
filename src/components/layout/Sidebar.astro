@@ -1,0 +1,171 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  modules: CollectionEntry<'modules'>[];
+  currentSlug?: string;
+}
+
+const { modules, currentSlug } = Astro.props;
+---
+
+<aside class="app-sidebar" id="sidebar">
+  <nav aria-label="Modules">
+    <div class="sidebar-progress" id="sidebar-progress">
+      <div class="progress-info">
+        <span class="progress-label">Progression</span>
+        <span class="progress-value" id="progress-value">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+      </div>
+      <div class="progress-xp" id="progress-xp">
+        <span class="xp-text">0 XP</span>
+        <span class="xp-level" id="xp-level">Debutant</span>
+      </div>
+    </div>
+
+    <div class="sidebar-header">
+      <span class="sidebar-label">Modules</span>
+    </div>
+    <ul class="sidebar-nav">
+      {modules.map((mod) => (
+        <li>
+          <a
+            href={`/modules/${mod.slug}/`}
+            class:list={['nav-link', { active: mod.slug === currentSlug }]}
+            data-slug={mod.slug}
+          >
+            <span class="nav-link-number" data-order={mod.data.order}>{mod.data.order}</span>
+            <span class="nav-link-text">{mod.data.title}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</aside>
+
+<script>
+  import { getCompletionPercentage, isModuleCompleted, getXp, getLevel } from '../../data/progress-manager';
+
+  function updateSidebarProgress() {
+    const percentage = getCompletionPercentage();
+    const xp = getXp();
+    const level = getLevel();
+
+    const progressValue = document.getElementById('progress-value');
+    const progressFill = document.getElementById('progress-bar-fill');
+    const xpText = document.querySelector('.xp-text');
+    const xpLevel = document.getElementById('xp-level');
+
+    if (progressValue) progressValue.textContent = `${percentage}%`;
+    if (progressFill) (progressFill as HTMLElement).style.width = `${percentage}%`;
+    if (xpText) xpText.textContent = `${xp} XP`;
+    if (xpLevel) xpLevel.textContent = level.name;
+
+    // Update checkmarks
+    const navLinks = document.querySelectorAll('.nav-link[data-slug]');
+    navLinks.forEach((link) => {
+      const slug = (link as HTMLElement).dataset.slug!;
+      if (isModuleCompleted(slug)) {
+        link.classList.add('completed');
+        const numberEl = link.querySelector('.nav-link-number');
+        if (numberEl && !numberEl.querySelector('svg')) {
+          numberEl.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+        }
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', updateSidebarProgress);
+  window.addEventListener('progress-updated', updateSidebarProgress);
+  updateSidebarProgress();
+</script>
+
+<style>
+  .sidebar-progress {
+    padding: var(--space-md) var(--space-lg) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-md);
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+  }
+
+  .progress-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .progress-value {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-primary-light);
+  }
+
+  .progress-bar-track {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-border);
+    overflow: hidden;
+    margin-bottom: var(--space-sm);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--color-primary), #6B73FF);
+    transition: width 0.5s ease;
+    width: 0;
+  }
+
+  .progress-xp {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+  }
+
+  .xp-text {
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
+  .xp-level {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .sidebar-header {
+    padding: 0 var(--space-lg) var(--space-md);
+  }
+
+  .sidebar-label {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+  }
+
+  .sidebar-nav {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sidebar-nav li {
+    margin: 0;
+  }
+
+  .nav-link-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

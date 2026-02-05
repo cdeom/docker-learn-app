@@ -1,0 +1,255 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ModuleCard from '../components/content/ModuleCard.astro';
+import { getCollection } from 'astro:content';
+
+const modules = (await getCollection('modules')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Accueil">
+  <div class="home">
+    <header class="hero">
+      <div class="hero-badge">Cours interactif</div>
+      <h1 class="hero-title">
+        Apprends <span class="highlight">Docker</span> en pratiquant
+      </h1>
+      <p class="hero-subtitle">
+        7 modules pour maitriser Git, Docker et Docker Compose.
+        De zero a deployer une application multi-services.
+      </p>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value">7</span>
+          <span class="stat-label">Modules</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">30</span>
+          <span class="stat-label">Questions</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">~3h</span>
+          <span class="stat-label">de cours</span>
+        </div>
+      </div>
+      <a href={modules.length > 0 ? `/modules/${modules[0].slug}/` : '#'} class="hero-cta" id="hero-cta">
+        Commencer le cours &rarr;
+      </a>
+
+      <div class="hero-continue" id="hero-continue" style="display: none;">
+        <a href="#" class="continue-link" id="continue-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span id="continue-text">Reprendre</span>
+        </a>
+      </div>
+    </header>
+
+    <script define:vars={{ moduleSlugs: modules.map(m => m.slug) }}>
+      // Make module slugs available to client script
+      window.__moduleSlugs = moduleSlugs;
+    </script>
+
+    <section class="modules-grid">
+      <h2 class="section-title">Parcours</h2>
+      <div class="modules-list">
+        {modules.map((mod) => (
+          <ModuleCard
+            order={mod.data.order}
+            title={mod.data.title}
+            description={mod.data.description}
+            duration={mod.data.duration}
+            icon={mod.data.icon}
+            xpReward={mod.data.xpReward}
+            slug={mod.slug}
+          />
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { getNextIncompleteModule, getCompletedCount, getCompletionPercentage, getXp, getLevel } from '../data/progress-manager';
+
+  function initHomepage() {
+    const slugs = (window as any).__moduleSlugs as string[] | undefined;
+    if (!slugs) return;
+
+    const completedCount = getCompletedCount();
+
+    // Show continue button if progress exists
+    if (completedCount > 0) {
+      const continuePanel = document.getElementById('hero-continue');
+      const continueLink = document.getElementById('continue-link') as HTMLAnchorElement;
+      const continueText = document.getElementById('continue-text');
+      const heroCta = document.getElementById('hero-cta');
+
+      const nextSlug = getNextIncompleteModule(slugs);
+
+      if (nextSlug && continuePanel && continueLink && continueText) {
+        continuePanel.style.display = 'block';
+        continueLink.href = `/modules/${nextSlug}/`;
+        continueText.textContent = 'Reprendre le cours';
+      }
+
+      // Update CTA text if already started
+      if (heroCta) {
+        const pct = getCompletionPercentage();
+        if (pct === 100) {
+          heroCta.textContent = 'Revoir le cours';
+        } else if (pct > 0) {
+          heroCta.textContent = `${pct}% complete`;
+          if (nextSlug) {
+            (heroCta as HTMLAnchorElement).href = `/modules/${nextSlug}/`;
+          }
+        }
+      }
+    }
+  }
+
+  initHomepage();
+</script>
+
+<style>
+  .home {
+    min-height: 100vh;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--space-2xl);
+  }
+
+  .hero {
+    text-align: center;
+    padding: var(--space-3xl) 0;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 0.3em 1em;
+    border-radius: var(--radius-full);
+    background: var(--color-primary-bg);
+    color: var(--color-primary-light);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: var(--space-lg);
+    letter-spacing: -0.03em;
+  }
+
+  .highlight {
+    background: linear-gradient(135deg, var(--color-primary), #6B73FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    max-width: 50ch;
+    margin: 0 auto var(--space-2xl);
+    line-height: 1.6;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3xl);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .stat-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    color: var(--color-primary-light);
+  }
+
+  .stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-2xl);
+    background: linear-gradient(135deg, var(--color-primary), #1A4FD6);
+    color: white;
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(5, 47, 173, 0.4);
+  }
+
+  .hero-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(5, 47, 173, 0.5);
+    text-decoration: none;
+  }
+
+  .hero-continue {
+    margin-top: var(--space-md);
+  }
+
+  .continue-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .continue-link:hover {
+    color: var(--color-primary-light);
+    text-decoration: none;
+  }
+
+  .modules-grid {
+    padding-top: var(--space-2xl);
+  }
+
+  .section-title {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .modules-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  @media (max-width: 768px) {
+    .home {
+      padding: var(--space-lg);
+    }
+
+    .hero {
+      padding: var(--space-xl) 0;
+    }
+
+    .hero-stats {
+      gap: var(--space-xl);
+    }
+  }
+</style>

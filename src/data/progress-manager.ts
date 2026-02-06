@@ -23,14 +23,15 @@ export interface UserProgress {
 }
 
 export const XP_PER_MODULE = 100;
-export const TOTAL_MODULES = 7;
+export const TOTAL_MODULES = 14;
 
 export const LEVELS = [
   { name: 'Debutant', minXp: 0 },
-  { name: 'Apprenti', minXp: 200 },
-  { name: 'Pratiquant', minXp: 500 },
-  { name: 'Expert', minXp: 900 },
-  { name: 'Maitre Docker', minXp: 1300 },
+  { name: 'Apprenti', minXp: 300 },
+  { name: 'Pratiquant', minXp: 800 },
+  { name: 'Expert', minXp: 1500 },
+  { name: 'Maitre Docker', minXp: 2500 },
+  { name: 'Architecte', minXp: 3500 },
 ] as const;
 
 function getItem<T>(key: string, fallback: T): T {
@@ -192,9 +193,9 @@ export const BADGES: Badge[] = [
   {
     id: 'half-way',
     name: 'Mi-Parcours',
-    description: 'Terminer 4 modules',
+    description: 'Terminer 7 modules',
     icon: '⭐',
-    condition: () => getCompletedCount() >= 4,
+    condition: () => getCompletedCount() >= 7,
   },
   {
     id: 'all-modules',
@@ -229,6 +230,41 @@ export const BADGES: Badge[] = [
     description: 'Atteindre 500 XP',
     icon: '🔥',
     condition: () => getXp() >= 500,
+  },
+  {
+    id: 'xp-1000',
+    name: 'Determine',
+    description: 'Atteindre 1000 XP',
+    icon: '💪',
+    condition: () => getXp() >= 1000,
+  },
+  {
+    id: 'xp-2000',
+    name: 'Acharne',
+    description: 'Atteindre 2000 XP',
+    icon: '⚡',
+    condition: () => getXp() >= 2000,
+  },
+  {
+    id: 'security-expert',
+    name: 'Expert Securite',
+    description: 'Terminer le module securite',
+    icon: '🔒',
+    condition: () => isModuleCompleted('08-env-and-security'),
+  },
+  {
+    id: 'cicd-master',
+    name: 'Maitre CI/CD',
+    description: 'Terminer le module CI/CD',
+    icon: '🚀',
+    condition: () => isModuleCompleted('11-ci-cd-github-actions'),
+  },
+  {
+    id: 'fullstack-dev',
+    name: 'Developpeur Full-Stack',
+    description: 'Terminer le projet full-stack',
+    icon: '🎯',
+    condition: () => isModuleCompleted('12-fullstack-project'),
   },
 ];
 

@@ -6,7 +6,16 @@ import TableOfContents from '../components/content/TableOfContents.astro';
 import CopyButton from '../components/content/CopyButton.astro';
 import QuizContainer from '../components/quiz/QuizContainer.astro';
 import InlineQuiz from '../components/quiz/InlineQuiz.astro';
-import { GIT_QUESTIONS, COMPOSE_QUESTIONS } from '../data/inline-quiz-questions';
+import {
+  GIT_QUESTIONS,
+  COMPOSE_QUESTIONS,
+  MULTISTAGE_QUESTIONS,
+  NETWORKING_QUESTIONS,
+  SECURITY_QUESTIONS,
+  ADVANCED_COMPOSE_QUESTIONS,
+  REGISTRY_QUESTIONS,
+  CICD_QUESTIONS,
+} from '../data/inline-quiz-questions';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -20,9 +29,15 @@ const sortedModules = allModules.sort((a, b) => a.data.order - b.data.order);
 const currentIndex = sortedModules.findIndex(m => m.slug === module.slug);
 const prevModule = currentIndex > 0 ? sortedModules[currentIndex - 1] : null;
 const nextModule = currentIndex < sortedModules.length - 1 ? sortedModules[currentIndex + 1] : null;
-const isQuizModule = module.data.order === 6;
+const isQuizModule = module.data.order === 13;
 const isGitModule = module.data.order === 2;
 const isComposeModule = module.data.order === 5;
+const isMultistageModule = module.data.order === 6;
+const isNetworkingModule = module.data.order === 7;
+const isSecurityModule = module.data.order === 8;
+const isAdvancedComposeModule = module.data.order === 9;
+const isRegistryModule = module.data.order === 10;
+const isCicdModule = module.data.order === 11;
 ---
 
 <BaseLayout title={module.data.title}>
@@ -52,6 +67,24 @@ const isComposeModule = module.data.order === 5;
           )}
           {isComposeModule && (
             <InlineQuiz questions={COMPOSE_QUESTIONS} moduleSlug="compose-quiz" title="Mini-QCM Docker Compose" />
+          )}
+          {isMultistageModule && (
+            <InlineQuiz questions={MULTISTAGE_QUESTIONS} moduleSlug="multistage-quiz" title="Mini-QCM Multi-stage Builds" />
+          )}
+          {isNetworkingModule && (
+            <InlineQuiz questions={NETWORKING_QUESTIONS} moduleSlug="networking-quiz" title="Mini-QCM Docker Networking" />
+          )}
+          {isSecurityModule && (
+            <InlineQuiz questions={SECURITY_QUESTIONS} moduleSlug="security-quiz" title="Mini-QCM Securite" />
+          )}
+          {isAdvancedComposeModule && (
+            <InlineQuiz questions={ADVANCED_COMPOSE_QUESTIONS} moduleSlug="advanced-compose-quiz" title="Mini-QCM Compose Avance" />
+          )}
+          {isRegistryModule && (
+            <InlineQuiz questions={REGISTRY_QUESTIONS} moduleSlug="registry-quiz" title="Mini-QCM Docker Hub & Registry" />
+          )}
+          {isCicdModule && (
+            <InlineQuiz questions={CICD_QUESTIONS} moduleSlug="cicd-quiz" title="Mini-QCM CI/CD" />
           )}
 
           {!isQuizModule && (

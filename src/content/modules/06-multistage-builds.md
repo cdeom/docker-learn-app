@@ -192,7 +192,7 @@ FROM node:18-alpine
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY package.json .
-RUN npm install --production
+RUN npm ci --omit=dev
 CMD ["node", "dist/server.js"]
 ```
 
@@ -202,9 +202,24 @@ CMD ["node", "dist/server.js"]
 
 ## 6.3 Exemple : API Node.js single vs multi-stage
 
+### Preparation
+
+Cree un dossier pour l'exercice et les 3 fichiers necessaires :
+
+```bash
+mkdir api-demo && cd api-demo
+```
+
+```
+api-demo/
+  ├── server.js          # Le code de l'API
+  ├── package.json       # Les dependances
+  └── Dockerfile         # On va le creer en 2 versions
+```
+
 ### L'application exemple
 
-On va utiliser une API Express ultra-simple :
+On va utiliser une API Express ultra-simple. Cree chaque fichier :
 
 ```javascript
 // server.js
@@ -302,8 +317,8 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Run tests (optional but recommended)
-RUN npm test
+# Run tests if you have test files (optional)
+# RUN npm test
 
 # ================================
 # STAGE 2: Production Runtime
@@ -316,7 +331,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install ONLY production dependencies
-RUN npm install --production
+RUN npm ci --omit=dev
 
 # Copy application code from builder
 COPY --from=builder /app/server.js ./
@@ -363,7 +378,7 @@ api-single   latest    1.14 GB
    - Alpine Linux = distribution ultra-minimaliste (~5 MB)
    - `node:18` = Debian complet (~900 MB)
 
-2. **Seulement `npm install --production`**
+2. **Seulement `npm ci --omit=dev`**
    - Pas de `nodemon`, `jest`, `eslint`
    - Seulement `express` et ses dépendances
 

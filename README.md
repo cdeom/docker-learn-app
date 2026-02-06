@@ -1,43 +1,47 @@
-# Astro Starter Kit: Minimal
+# Docker Learn
 
-```sh
-npm create astro@latest -- --template minimal
+Interactive Docker learning platform for students. 7 modules covering Docker, Git, Docker Compose with quizzes, progress tracking and gamification.
+
+## Quick Start with Docker
+
+```bash
+git clone https://github.com/cdeom/docker-learn-app.git
+cd docker-learn-app
+docker compose up -d --build
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Open **http://localhost:9090/** in your browser.
 
-## 🚀 Project Structure
+To stop:
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+docker compose down
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Development
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```bash
+npm install
+npm run dev
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
+Open **http://localhost:4321/**
 
-## 🧞 Commands
+## Features
 
-All commands are run from the root of the project, from a terminal:
+- 7 course modules (Docker, Git, Nginx, Dockerfile, Docker Compose, QCM, Solutions)
+- Interactive QCM with 20 questions and immediate feedback
+- Inline quizzes for Git and Docker Compose modules
+- Progress tracking (localStorage)
+- Gamification: XP, levels, badges, confetti
+- Dark/light theme
+- Search (Ctrl+K)
+- Code syntax highlighting with copy button
+- Responsive design
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Tech Stack
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- **Astro 5.x** with TypeScript
+- **Shiki** for syntax highlighting
+- **CSS custom properties** for theming
+- **Nginx Alpine** in Docker (62 MB image)

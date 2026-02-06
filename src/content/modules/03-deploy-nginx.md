@@ -1,25 +1,25 @@
 ---
-title: "Deployer un conteneur Nginx"
+title: "Déployer un conteneur Nginx"
 description: "Lancer son premier conteneur Docker avec Nginx"
 order: 3
 duration: "20 min"
 icon: "🚀"
 xpReward: 200
 objectives:
-  - "Telecharger et lancer une image Docker"
+  - "Télécharger et lancer une image Docker"
   - "Comprendre les ports et volumes"
-  - "Explorer un conteneur en cours d'execution"
+  - "Explorer un conteneur en cours d'exécution"
 ---
 
 ## 3.1 Exercice pratique step-by-step
 
-### Etape 1 : Telecharger et lancer Nginx
+### Étape 1 : Télécharger et lancer Nginx
 
 ```bash
-# Telecharger l'image nginx
+# Télécharger l'image nginx
 docker pull nginx
 
-# Verifier qu'elle est la
+# Vérifier qu'elle est là
 docker images
 ```
 
@@ -29,34 +29,34 @@ REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
 nginx        latest    a8758716bb6a   2 weeks ago   187MB
 ```
 
-### Etape 2 : Lancer le conteneur
+### Étape 2 : Lancer le conteneur
 
 ```bash
-# Lancer nginx en arriere-plan, avec le port 8080
+# Lancer nginx en arrière-plan, avec le port 8080
 docker run -d --name mon-premier-site -p 8080:80 nginx
 ```
 
 Explication de chaque partie :
-- `docker run` : creer et demarrer un conteneur
-- `-d` : en arriere-plan (detached)
+- `docker run` : créer et démarrer un conteneur
+- `-d` : en arrière-plan (détaché)
 - `--name mon-premier-site` : nom du conteneur
 - `-p 8080:80` : port 8080 de ton PC = port 80 du conteneur
-- `nginx` : image a utiliser
+- `nginx` : image à utiliser
 
-### Etape 3 : Tester !
+### Étape 3 : Tester !
 
 Ouvre ton navigateur et va sur : **http://localhost:8080**
 
-Tu devrais voir la page par defaut de Nginx :
+Tu devrais voir la page par défaut de Nginx :
 
 ```
 Welcome to nginx!
 If you see this page, the nginx web server is successfully installed...
 ```
 
-**Felicitations ! Tu viens de deployer ton premier conteneur Docker !**
+**Félicitations ! Tu viens de déployer ton premier conteneur Docker !**
 
-### Etape 4 : Explorer le conteneur
+### Étape 4 : Explorer le conteneur
 
 ```bash
 # Voir les conteneurs en cours
@@ -79,22 +79,22 @@ cat /usr/share/nginx/html/index.html
 exit
 ```
 
-### Etape 5 : Arreter et nettoyer
+### Étape 5 : Arrêter et nettoyer
 
 ```bash
-# Arreter le conteneur
+# Arrêter le conteneur
 docker stop mon-premier-site
 
-# Verifier (il ne devrait plus apparaitre)
+# Vérifier (il ne devrait plus apparaître)
 docker ps
 
-# Le voir dans les conteneurs arretes
+# Le voir dans les conteneurs arrêtés
 docker ps -a
 
 # Supprimer le conteneur
 docker rm mon-premier-site
 
-# Verifier
+# Vérifier
 docker ps -a
 ```
 
@@ -106,7 +106,7 @@ Au lieu de modifier les fichiers DANS le conteneur, on peut "monter" un dossier
 de ton PC dans le conteneur.
 
 ```bash
-# Creer un dossier sur ton PC
+# Créer un dossier sur ton PC
 mkdir -p ~/mon-site
 echo "<h1>Hello depuis mon PC !</h1>" > ~/mon-site/index.html
 
@@ -118,19 +118,19 @@ docker run -d \
   nginx
 ```
 
-Le flag `-v` explique :
+Le flag `-v` expliqué :
 ```
 -v ~/mon-site:/usr/share/nginx/html:ro
    |           |                       |
-   |           |                       +-- ro = read-only (securite)
+   |           |                       +-- ro = read-only (sécurité)
    |           +-- Chemin DANS le conteneur
    +-- Chemin sur TON PC
 ```
 
 Va sur **http://localhost:8080** → tu verras "Hello depuis mon PC !"
 
-Modifie le fichier `~/mon-site/index.html` → rafraichis la page → le changement
-est immediat !
+Modifie le fichier `~/mon-site/index.html` → rafraîchis la page → le changement
+est immédiat !
 
 ```bash
 # Nettoyer

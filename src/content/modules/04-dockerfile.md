@@ -1,35 +1,35 @@
 ---
-title: "Creer sa propre image Docker"
-description: "Ecrire un Dockerfile et deployer sa page web personnelle"
+title: "Créer sa propre image Docker"
+description: "Écrire un Dockerfile et déployer sa page web personnelle"
 order: 4
 duration: "30 min"
 icon: "🏗️"
 xpReward: 250
 objectives:
-  - "Creer un site web HTML/CSS"
-  - "Ecrire un Dockerfile"
-  - "Construire et deployer une image custom"
+  - "Créer un site web HTML/CSS"
+  - "Écrire un Dockerfile"
+  - "Construire et déployer une image custom"
 ---
 
 ## 4.1 Le projet : Une page web personnelle
 
-On va creer une page web simple avec les infos :
-- Nom, prenom
-- Ecole
+On va créer une page web simple avec les infos :
+- Nom, prénom
+- École
 - Photo ou avatar
 - Quelques infos
 
 Puis on va :
-1. Creer le site web (HTML/CSS)
-2. Ecrire un Dockerfile
+1. Créer le site web (HTML/CSS)
+2. Écrire un Dockerfile
 3. Construire (build) l'image
-4. Deployer le conteneur
+4. Déployer le conteneur
 
 ---
 
-## 4.2 Etape 1 : Creer le site web
+## 4.2 Étape 1 : Créer le site web
 
-Cree cette structure de fichiers :
+Crée cette structure de fichiers :
 
 ```
 mon-projet/
@@ -53,7 +53,7 @@ mon-projet/
     <div class="card">
         <div class="avatar">XY</div>
         <h1>Bonjour, je m'appelle <span class="name">Xavier Yamamoto</span></h1>
-        <p class="school">Etudiant en informatique @ Mon Ecole</p>
+        <p class="school">Étudiant en informatique @ Mon École</p>
 
         <div class="info-grid">
             <div class="info-item">
@@ -66,7 +66,7 @@ mon-projet/
             </div>
             <div class="info-item">
                 <span class="label">Passion</span>
-                <span class="value">Developpement Web</span>
+                <span class="value">Développement Web</span>
             </div>
             <div class="info-item">
                 <span class="label">Projet</span>
@@ -203,34 +203,34 @@ h1 {
 
 ---
 
-## 4.3 Etape 2 : Comprendre le Dockerfile
+## 4.3 Étape 2 : Comprendre le Dockerfile
 
 Un **Dockerfile** est un fichier texte qui contient les **instructions** pour construire
-une image Docker. Chaque ligne est une etape.
+une image Docker. Chaque ligne est une étape.
 
 ### Les instructions principales
 
 ```dockerfile
-# FROM : image de base (le point de depart)
+# FROM : image de base (le point de départ)
 FROM nginx:alpine
 
 # COPY : copier des fichiers de ton PC vers l'image
 COPY index.html /usr/share/nginx/html/
 
-# WORKDIR : definir le repertoire de travail
+# WORKDIR : définir le répertoire de travail
 WORKDIR /app
 
-# RUN : executer une commande pendant la construction
-RUN apt-get update && apt-get install -y curl
+# RUN : exécuter une commande pendant la construction
+RUN apk add --no-cache curl
 
-# EXPOSE : documenter le port utilise (informatif)
+# EXPOSE : documenter le port utilisé (informatif)
 EXPOSE 80
 
-# CMD : commande executee au demarrage du conteneur
+# CMD : commande exécutée au démarrage du conteneur
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-### Comment ca marche ?
+### Comment ça marche ?
 
 ```
 Dockerfile          Build                    Image
@@ -241,28 +241,28 @@ Dockerfile          Build                    Image
 | CMD       | ----> | Metadata         | --> |           |
 +-----------+       +------------------+     +-----------+
 
-Chaque instruction cree une "couche" (layer).
+Chaque instruction crée une "couche" (layer).
 Les couches sont mises en cache = builds plus rapides !
 ```
 
 ---
 
-## 4.4 Etape 3 : Ecrire notre Dockerfile
+## 4.4 Étape 3 : Écrire notre Dockerfile
 
 ### Dockerfile
 
 ```dockerfile
-# Etape 1 : Partir de l'image nginx version alpine (legere, ~40MB)
+# Étape 1 : Partir de l'image nginx version alpine (légère, ~40MB)
 FROM nginx:alpine
 
-# Etape 2 : Copier nos fichiers web dans le dossier de nginx
+# Étape 2 : Copier nos fichiers web dans le dossier de nginx
 COPY index.html /usr/share/nginx/html/index.html
 COPY style.css /usr/share/nginx/html/style.css
 
-# Etape 3 : Exposer le port 80 (documentation)
+# Étape 3 : Exposer le port 80 (documentation)
 EXPOSE 80
 
-# Etape 4 : La commande de demarrage est deja definie dans l'image nginx
+# Étape 4 : La commande de démarrage est déjà définie dans l'image nginx
 # Pas besoin de CMD, l'image de base s'en charge !
 ```
 
@@ -273,12 +273,12 @@ EXPOSE 80
 | `nginx`         | ~187 MB | Base Debian + Nginx        |
 | `nginx:alpine`  | ~43 MB  | Base Alpine + Nginx        |
 
-Alpine Linux est une distribution ultra-legere. **Toujours preferer les images alpine
+Alpine Linux est une distribution ultra-légère. **Toujours préférer les images alpine
 quand c'est possible.**
 
 ---
 
-## 4.5 Etape 4 : Construire (build) l'image
+## 4.5 Étape 4 : Construire (build) l'image
 
 ```bash
 # Se placer dans le dossier du projet
@@ -291,7 +291,7 @@ docker build -t ma-page-web .
 Explication :
 - `docker build` : commande pour construire une image
 - `-t ma-page-web` : tag (nom) de l'image
-- `.` : contexte de build (le dossier actuel, ou se trouve le Dockerfile)
+- `.` : contexte de build (le dossier actuel, où se trouve le Dockerfile)
 
 Tu devrais voir :
 ```
@@ -303,7 +303,7 @@ Tu devrais voir :
  => => naming to docker.io/library/ma-page-web
 ```
 
-Verifie que l'image existe :
+Vérifie que l'image existe :
 ```bash
 docker images
 
@@ -313,7 +313,7 @@ docker images
 
 ---
 
-## 4.6 Etape 5 : Deployer le conteneur
+## 4.6 Étape 5 : Déployer le conteneur
 
 ```bash
 # Lancer un conteneur depuis notre image
@@ -330,7 +330,7 @@ Ouvre **http://localhost:8080** dans ton navigateur.
   Dockerfile        docker build        Image           docker run        Conteneur
 +-----------+    +---------------+   +-----------+   +-------------+   +-----------+
 | FROM      |    |               |   |           |   |             |   |           |
-| COPY      | -> | Construction  | ->| ma-page   | ->|  Demarrage  | ->| Site web  |
+| COPY      | -> | Construction  | ->| ma-page   | ->|  Démarrage  | ->| Site web  |
 | EXPOSE    |    |  de l'image   |   |  -web     |   |             |   | en ligne! |
 +-----------+    +---------------+   +-----------+   +-------------+   +-----------+
                                                                         localhost:8080
@@ -338,28 +338,28 @@ Ouvre **http://localhost:8080** dans ton navigateur.
 
 ---
 
-## 4.7 Etape 6 : Modifier et reconstruire
+## 4.7 Étape 6 : Modifier et reconstruire
 
 Si tu modifies `index.html` (par exemple changer ton nom) :
 
 ```bash
-# 1. Arreter et supprimer l'ancien conteneur
+# 1. Arrêter et supprimer l'ancien conteneur
 docker stop mon-site && docker rm mon-site
 
-# 2. Reconstruire l'image (Docker utilise le cache pour les couches inchangees)
+# 2. Reconstruire l'image (Docker utilise le cache pour les couches inchangées)
 docker build -t ma-page-web .
 
 # 3. Relancer
 docker run -d --name mon-site -p 8080:80 ma-page-web
 
-# 4. Rafraichir le navigateur !
+# 4. Rafraîchir le navigateur !
 ```
 
 ---
 
 ## 4.8 BONUS : Version Docker Compose
 
-Cree un fichier `docker-compose.yml` dans le meme dossier :
+Crée un fichier `docker-compose.yml` dans le même dossier :
 
 ```yaml
 services:
@@ -379,7 +379,7 @@ docker compose up -d --build
 # Voir les logs
 docker compose logs -f
 
-# Arreter
+# Arrêter
 docker compose down
 ```
 

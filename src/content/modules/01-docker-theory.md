@@ -7,7 +7,7 @@ icon: "🐳"
 xpReward: 100
 objectives:
   - "Comprendre ce qu'est Docker et pourquoi l'utiliser"
-  - "Connaitre Docker Compose et son utilite"
+  - "Connaître Docker Compose et son utilité"
   - "Installer WSL2 et Docker"
 ---
 
@@ -15,21 +15,21 @@ objectives:
 
 ### Analogie simple
 
-Imagine que tu cuisines un gateau. Pour le reussir, il te faut :
+Imagine que tu cuisines un gâteau. Pour le réussir, il te faut :
 - La bonne recette
-- Les bons ingredients
-- Le bon four a la bonne temperature
+- Les bons ingrédients
+- Le bon four à la bonne température
 
-Si tu donnes juste la recette a un ami, il risque d'avoir un four different, des ingredients
-differents... et le gateau ne sera pas pareil.
+Si tu donnes juste la recette à un ami, il risque d'avoir un four différent, des ingrédients
+différents... et le gâteau ne sera pas pareil.
 
-**Docker, c'est comme si tu envoyais le gateau AVEC le four, les ingredients et la recette.**
-Ton ami n'a qu'a appuyer sur "start" et ca marche pareil que chez toi.
+**Docker, c'est comme si tu envoyais le gâteau AVEC le four, les ingrédients et la recette.**
+Ton ami n'a qu'à appuyer sur "start" et ça marche pareil que chez toi.
 
-### Definition technique
+### Définition technique
 
 Docker est un outil qui permet de **packager une application avec tout ce dont elle a besoin**
-(code, libraries, configuration, OS) dans un **conteneur** isole.
+(code, libraries, configuration, OS) dans un **conteneur** isolé.
 
 ```
 +--------------------------------------------------+
@@ -38,9 +38,9 @@ Docker est un outil qui permet de **packager une application avec tout ce dont e
 |   +------------------+  +------------------+     |
 |   |   Conteneur 1    |  |   Conteneur 2    |     |
 |   |   (Site web)     |  |   (Base de       |     |
-|   |                  |  |    donnees)       |     |
+|   |                  |  |    données)       |     |
 |   |  - Nginx         |  |  - MySQL         |     |
-|   |  - HTML/CSS      |  |  - Donnees       |     |
+|   |  - HTML/CSS      |  |  - Données       |     |
 |   |  - Config        |  |  - Config        |     |
 |   +------------------+  +------------------+     |
 |                                                  |
@@ -48,49 +48,49 @@ Docker est un outil qui permet de **packager une application avec tout ce dont e
 +--------------------------------------------------+
 ```
 
-### Les concepts cles
+### Les concepts clés
 
-| Concept        | Analogie                  | Definition                                      |
+| Concept        | Analogie                  | Définition                                      |
 |----------------|---------------------------|------------------------------------------------|
-| **Image**      | La recette du gateau      | Un modele en lecture seule pour creer un conteneur |
-| **Conteneur**  | Le gateau cuit            | Une instance en cours d'execution d'une image   |
-| **Dockerfile** | Les instructions ecrites  | Fichier texte qui decrit comment construire l'image |
-| **Registry**   | Le livre de recettes      | Un depot d'images (ex: Docker Hub)              |
+| **Image**      | La recette du gâteau      | Un modèle en lecture seule pour créer un conteneur |
+| **Conteneur**  | Le gâteau cuit            | Une instance en cours d'exécution d'une image   |
+| **Dockerfile** | Les instructions écrites  | Fichier texte qui décrit comment construire l'image |
+| **Registry**   | Le livre de recettes      | Un dépôt d'images (ex: Docker Hub)              |
 
 ### Image vs Conteneur
 
 ```
-   IMAGE (modele)                    CONTENEUR (instance)
+   IMAGE (modèle)                    CONTENEUR (instance)
    +----------------+               +----------------+
    | nginx:latest   | --- docker run ---> | nginx en cours |
-   | (en lecture     |               | d'execution    |
+   | (en lecture     |               | d'exécution    |
    |  seule)        |               | (modifiable)   |
    +----------------+               +----------------+
                                     +----------------+
                      --- docker run ---> | autre nginx    |
-                                    | independant    |
+                                    | indépendant    |
                                     +----------------+
 
-   1 image peut creer N conteneurs !
+   1 image peut créer N conteneurs !
 ```
 
 ---
 
 ## 1.2 C'est quoi Docker Compose ?
 
-### Le probleme
+### Le problème
 
-Une application reelle a souvent besoin de **plusieurs services** :
+Une application réelle a souvent besoin de **plusieurs services** :
 - Un serveur web (Nginx)
 - Un backend (Node.js, Python...)
-- Une base de donnees (MySQL, PostgreSQL...)
+- Une base de données (MySQL, PostgreSQL...)
 
-Sans Docker Compose, tu devrais lancer chaque conteneur a la main avec de longues commandes.
+Sans Docker Compose, tu devrais lancer chaque conteneur à la main avec de longues commandes.
 
 ### La solution : Docker Compose
 
-Docker Compose permet de **definir et lancer plusieurs conteneurs en une seule commande**
-grace a un fichier `docker-compose.yml`.
+Docker Compose permet de **définir et lancer plusieurs conteneurs en une seule commande**
+grâce à un fichier `docker-compose.yml`.
 
 ```yaml
 # docker-compose.yml - Exemple simple
@@ -119,7 +119,7 @@ SANS Docker Compose :                 AVEC Docker Compose :
 docker run -d \                       docker compose up -d
   --name web \
   -p 8080:80 \                        # C'est tout ! Les 2 services
-  nginx                               # demarrent ensemble.
+  nginx                               # démarrent ensemble.
 
 docker run -d \
   --name db \
@@ -131,14 +131,14 @@ docker run -d \
 
 ## 1.3 C'est quoi WSL2 ?
 
-### Le probleme
+### Le problème
 
-Docker est ne sous **Linux**. Si tu es sous **Windows**, Docker ne peut pas fonctionner
-directement car Windows et Linux ont des noyaux (kernels) differents.
+Docker est né sous **Linux**. Si tu es sous **Windows**, Docker ne peut pas fonctionner
+directement car Windows et Linux ont des noyaux (kernels) différents.
 
 ### La solution : WSL2 (Windows Subsystem for Linux 2)
 
-WSL2 est une fonctionnalite de Windows qui permet de faire tourner un **vrai noyau Linux**
+WSL2 est une fonctionnalité de Windows qui permet de faire tourner un **vrai noyau Linux**
 directement dans Windows, sans machine virtuelle lourde.
 
 ```
@@ -161,23 +161,23 @@ directement dans Windows, sans machine virtuelle lourde.
 
 ### Pourquoi WSL2 et pas WSL1 ?
 
-| Critere                  | WSL1          | WSL2              |
+| Critère                  | WSL1          | WSL2              |
 |--------------------------|---------------|-------------------|
 | Vrai noyau Linux         | Non           | **Oui**           |
-| Compatibilite Docker     | Partielle     | **Complete**      |
+| Compatibilité Docker     | Partielle     | **Complète**      |
 | Performance fichiers     | Rapide Windows| **Rapide Linux**  |
-| Utilisation memoire      | Legere        | Plus lourde       |
+| Utilisation mémoire      | Légère        | Plus lourde       |
 
 ### Installation de WSL2 (Windows)
 
 ```powershell
-# Etape 1 : Ouvrir PowerShell en Administrateur et taper :
+# Étape 1 : Ouvrir PowerShell en Administrateur et taper :
 wsl --install
 
-# Cela installe WSL2 + Ubuntu par defaut
-# Redemarrer le PC quand demande
+# Cela installe WSL2 + Ubuntu par défaut
+# Redémarrer le PC quand demandé
 
-# Etape 2 : Verifier l'installation
+# Étape 2 : Vérifier l'installation
 wsl --list --verbose
 
 # Tu devrais voir :
@@ -194,10 +194,10 @@ wsl --list --verbose
 
 ### Sur Windows (avec WSL2)
 
-1. Telecharger **Docker Desktop** : https://www.docker.com/products/docker-desktop/
+1. Télécharger **Docker Desktop** : https://www.docker.com/products/docker-desktop/
 2. Installer et cocher "Use WSL 2 based engine"
-3. Redemarrer
-4. Ouvrir un terminal et verifier :
+3. Redémarrer
+4. Ouvrir un terminal et vérifier :
 
 ```bash
 docker --version
@@ -210,23 +210,23 @@ docker compose version
 ### Sur Linux (Ubuntu/Debian)
 
 ```bash
-# Methode rapide officielle
+# Méthode rapide officielle
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 
-# Ajouter ton user au groupe docker (pour ne pas mettre sudo a chaque fois)
+# Ajouter ton user au groupe docker (pour ne pas mettre sudo à chaque fois)
 sudo usermod -aG docker $USER
 
-# Deconnecter/reconnecter ta session, puis verifier :
+# Déconnecter/reconnecter ta session, puis vérifier :
 docker --version
 docker compose version
 ```
 
 ### Sur Mac
 
-1. Telecharger **Docker Desktop pour Mac**
+1. Télécharger **Docker Desktop pour Mac**
 2. Installer et lancer
-3. Verifier dans le terminal :
+3. Vérifier dans le terminal :
 
 ```bash
 docker --version
@@ -239,40 +239,39 @@ docker compose version
 
 ```bash
 # --- IMAGES ---
-docker pull nginx              # Telecharger une image depuis Docker Hub
+docker pull nginx              # Télécharger une image depuis Docker Hub
 docker images                  # Lister les images locales
 docker rmi nginx               # Supprimer une image
 
 # --- CONTENEURS ---
-docker run nginx               # Creer et demarrer un conteneur
-docker run -d nginx             # Pareil, mais en arriere-plan (detache)
+docker run nginx               # Créer et démarrer un conteneur
+docker run -d nginx             # Pareil, mais en arrière-plan (détaché)
 docker run -d -p 8080:80 nginx  # Mapper le port 8080 (host) vers 80 (conteneur)
 docker run -d --name monsite nginx  # Donner un nom au conteneur
 
 docker ps                      # Lister les conteneurs en cours
-docker ps -a                   # Lister TOUS les conteneurs (meme arretes)
+docker ps -a                   # Lister TOUS les conteneurs (même arrêtés)
 
-docker stop monsite            # Arreter un conteneur
-docker start monsite           # Redemarrer un conteneur arrete
-docker rm monsite              # Supprimer un conteneur (doit etre arrete)
+docker stop monsite            # Arrêter un conteneur
+docker start monsite           # Redémarrer un conteneur arrêté
+docker rm monsite              # Supprimer un conteneur (doit être arrêté)
 
 docker logs monsite            # Voir les logs d'un conteneur
 docker exec -it monsite bash   # Entrer DANS un conteneur (terminal interactif)
 
 # --- NETTOYAGE ---
-docker system prune            # Supprimer tout ce qui est inutilise
+docker system prune            # Supprimer tout ce qui est inutilisé
 ```
 
-### Le flag `-p` (ports) explique
+### Le flag `-p` (ports) expliqué
 
 ```
 docker run -d -p 8080:80 nginx
                   |    |
-                  |    +-- Port DANS le conteneur (Nginx ecoute sur 80)
-                  +------- Port sur TON PC (tu accedes via localhost:8080)
+                  |    +-- Port DANS le conteneur (Nginx écoute sur 80)
+                  +------- Port sur TON PC (tu accèdes via localhost:8080)
 
 Ton navigateur --> localhost:8080 --> Docker --> conteneur:80 --> Nginx
 ```
 
 ---
-

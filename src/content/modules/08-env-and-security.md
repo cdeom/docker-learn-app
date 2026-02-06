@@ -150,7 +150,7 @@ ENV NODE_ENV=development \
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 COPY . .
 
@@ -223,7 +223,7 @@ ENV NODE_ENV=production \
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 COPY . .
 
@@ -489,7 +489,7 @@ RUN addgroup -g 1001 -S nodejs && \
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 COPY --chown=nodejs:nodejs . .
 
@@ -671,7 +671,7 @@ FROM node:20-alpine
 # Install only production dependencies
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy built app from builder
 COPY --from=builder /app/dist ./dist
@@ -1021,7 +1021,7 @@ COPY package*.json ./
 
 # Audit before install
 RUN npm audit --audit-level=high && \
-    npm ci --only=production
+    npm ci --omit=dev
 
 COPY . .
 
@@ -1243,6 +1243,23 @@ Dive te montre TOUS les fichiers de chaque layer. Verifie qu'il n'y a pas de sec
 
 C'est l'heure de mettre en pratique ! Tu vas prendre un Dockerfile **completement insecure** et le corriger en 5 etapes.
 
+### Preparation
+
+Cree un dossier pour l'exercice :
+
+```bash
+mkdir security-demo && cd security-demo
+```
+
+Tu vas creer 3 fichiers :
+
+```
+security-demo/
+├── Dockerfile         # On va le corriger en 5 etapes
+├── .dockerignore      # A creer a l'etape 4
+└── .env               # Les vrais secrets (PAS dans l'image !)
+```
+
 ### Dockerfile de depart (INSECURE)
 
 ```dockerfile
@@ -1340,7 +1357,7 @@ WORKDIR /app
 
 # Copy only production dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy built app
 COPY --from=builder /app/dist ./dist
@@ -1383,7 +1400,7 @@ FROM node:20.11-alpine3.19
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
@@ -1482,7 +1499,7 @@ RUN apk add --no-cache dumb-init
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 

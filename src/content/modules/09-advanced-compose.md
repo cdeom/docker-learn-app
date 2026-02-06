@@ -1350,7 +1350,13 @@ Avec :
 ✅ Limites de ressources
 ✅ Scaling de l'API
 
-### Structure du projet
+### Preparation
+
+Cree la structure du projet :
+
+```bash
+mkdir -p mon-app/nginx mon-app/api && cd mon-app
+```
 
 ```
 mon-app/
@@ -1365,6 +1371,8 @@ mon-app/
     ├── package.json
     └── server.js
 ```
+
+Cree chaque fichier dans l'ordre ci-dessous.
 
 ### 1. L'API Node.js
 
@@ -1437,7 +1445,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy source
 COPY . .

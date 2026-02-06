@@ -677,7 +677,7 @@ COPY package*.json ./
 
 # Install dependencies based on environment
 RUN if [ "$NODE_ENV" = "production" ]; then \
-      npm ci --production; \
+      npm ci --omit=dev; \
     else \
       npm ci; \
     fi
@@ -729,7 +729,7 @@ COPY package*.json ./
 # Install based on environment
 RUN if [ "$NODE_ENV" = "production" ]; then \
       echo "📦 Installing production dependencies only..."; \
-      npm ci --production; \
+      npm ci --omit=dev; \
     else \
       echo "📦 Installing ALL dependencies (dev mode)..."; \
       npm ci; \
@@ -994,7 +994,7 @@ WORKDIR /app
 
 # Same principle: package.json first, then code
 COPY package.json package-lock.json ./
-RUN npm ci --production
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
@@ -1204,7 +1204,7 @@ Modifie le Dockerfile pour utiliser :
 
 **Contraintes :**
 - Utilise `npm ci` au lieu de `npm install`
-- Dans production, fais `npm ci --production`
+- Dans production, fais `npm ci --omit=dev`
 - Ajoute un utilisateur non-root
 - Optimise le cache (package.json avant le reste du code)
 
@@ -1242,7 +1242,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install ONLY production dependencies
-RUN npm ci --production
+RUN npm ci --omit=dev
 
 # Copy application code
 COPY --from=builder /app/server.js ./
@@ -1316,7 +1316,7 @@ abc123def456   EXPOSE 3000                                     0B
 abc123def456   USER nodejs                                     0B
 abc123def456   RUN addgroup ...                                4.6kB
 abc123def456   COPY --from=builder /app/server.js ./           2.1kB
-abc123def456   RUN npm ci --production                         15.2MB
+abc123def456   RUN npm ci --omit=dev                         15.2MB
 abc123def456   COPY package*.json ./                           1.8kB
 abc123def456   WORKDIR /app                                    0B
 abc123def456   FROM node:18-alpine                             167MB
@@ -1359,7 +1359,7 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --production
+RUN npm ci --omit=dev
 COPY --from=builder /app/server.js ./
 
 ENV NODE_ENV=${NODE_ENV}
@@ -1434,7 +1434,7 @@ Avant de déployer une image, vérifie :
 - [ ] Multi-stage build utilisé
 - [ ] Image Alpine ou distroless en production
 - [ ] `.dockerignore` configuré
-- [ ] Seulement les dépendances de prod (`npm ci --production`)
+- [ ] Seulement les dépendances de prod (`npm ci --omit=dev`)
 - [ ] Pas de fichiers de build/tests dans l'image finale
 - [ ] Utilisateur non-root
 - [ ] Cache optimisé (package.json copié en premier)

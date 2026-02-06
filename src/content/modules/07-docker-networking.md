@@ -770,6 +770,10 @@ Déployer une app avec :
 - `api` doit pouvoir parler à `redis`
 - `nginx` NE DOIT PAS pouvoir parler à `redis` (isolation!)
 
+### Étape 0 : Prépare ton terminal
+
+Pas besoin de créer de fichiers pour cet exercice, on utilise uniquement des commandes Docker. Ouvre un terminal et c'est parti !
+
 ### Étape 1 : Créer les réseaux
 
 ```bash

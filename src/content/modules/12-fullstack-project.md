@@ -92,7 +92,14 @@ On va construire un gestionnaire de tâches simple mais complet. C'est le genre 
 
 ## 12.3 Structure du projet
 
-Voici l'arborescence complète du projet. Chaque service a son propre dossier :
+Commence par creer toute la structure de dossiers :
+
+```bash
+mkdir -p task-manager/{nginx,api/src/{models,routes},frontend/src,docs}
+cd task-manager
+```
+
+Voici l'arborescence complète. Tu vas creer chaque fichier dans les sections suivantes :
 
 ```
 task-manager/
@@ -135,8 +142,14 @@ task-manager/
 
 - Chaque service est **indépendant** (son propre package.json, Dockerfile)
 - Les données MongoDB sont dans un **volume nommé** (persistance)
-- Les configs dev et prod sont **séparées** (docker-compose.yml vs .prod.yml)
+- Les configs dev et prod sont **séparées** (docker-compose.yml = dev, docker-compose.prod.yml = prod)
 - Les secrets sont dans **.env** (jamais commités)
+
+> **Important** : Avant de builder, il faut générer le `package-lock.json` dans chaque dossier qui a un `package.json`. Après avoir créé les fichiers, lance :
+> ```bash
+> cd api && npm install && cd ../frontend && npm install && cd ..
+> ```
+> Cela crée les fichiers `package-lock.json` nécessaires pour `npm ci` dans les Dockerfiles.
 
 ## 12.4 Backend Express + Mongoose
 
@@ -358,7 +371,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Production stage
 FROM node:20-alpine

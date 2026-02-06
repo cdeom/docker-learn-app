@@ -920,7 +920,13 @@ Tu as une app Node.js avec un Dockerfile. Tu veux :
 
 ### Étape 1 : Prépare ton projet
 
-Structure attendue :
+Crée la structure du projet :
+
+```bash
+mkdir -p myapp/.github/workflows myapp/src && cd myapp
+git init
+```
+
 ```
 myapp/
 ├── .github/
@@ -932,6 +938,8 @@ myapp/
 ├── package.json
 └── README.md
 ```
+
+Crée chaque fichier dans l'ordre ci-dessous.
 
 ### Étape 2 : Crée le Dockerfile
 
@@ -947,7 +955,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy source code
 COPY src ./src
